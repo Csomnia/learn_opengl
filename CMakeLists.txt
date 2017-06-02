@@ -11,8 +11,10 @@ set(HEADER
     "lib/glad/include"
     "lib/stb_image/include"
     "lib/glm-0.9.8.4/include")
+
 set(SOURCE
     "src/main.cpp")
+
 
 INCLUDE_DIRECTORIES(${HEADER})
 

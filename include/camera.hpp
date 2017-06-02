@@ -15,7 +15,7 @@ enum Camera_Movement {
     RIGHT
 };
 
-const float YAW        = -90.0f;
+const float YAW        =  90.0f;
 const float PITCH      =  0.0f;
 const float SPEED      =  2.5f;
 const float SENSITIVTY =  0.1f;
@@ -39,7 +39,7 @@ public:
     Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f),
            glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
            float yaw = YAW, float pitch = PITCH)
-        : Front(glm::vec3(0.0f, 0.0f, -1.0f)),
+        : Front(glm::vec3(0.0f, 0.0f, 1.0f)),
           MovementSpeed(SPEED),
           MouseSensitivity(SENSITIVTY),
           Zoom(ZOOM)
@@ -54,7 +54,7 @@ public:
 
 
     Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch)
-        : Front(glm::vec3(0.0f, 0.0f, -1.0f)),
+        : Front(glm::vec3(0.0f, 0.0f, 1.0f)),
           MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY), Zoom(ZOOM)
     {
         Position = glm::vec3(posX, posY, posZ);
@@ -103,8 +103,8 @@ public:
             if (Pitch < -89.0f)
                 Pitch = -89.0f;
         }
-//        std::cout << "Yaw: " << Yaw << std::endl;
-//        std::cout << "Pitch: " << Pitch << std::endl;
+//        std::cout << "Yaw: " << Yaw  << " xoffset: " << xoffset << std::endl;
+//        std::cout << "Pitch: " << Pitch << " yoffset: " << yoffset << std::endl;
 
         updateCameraVectors();
     }
@@ -129,6 +129,13 @@ private:
 
         Right = glm::normalize(glm::cross(Front, WorldUp));
         Up = glm::normalize(glm::cross(Right, Front));
+
+//        std::cout << "position: (" << Position.x << ", "
+//                  << Position.y << ", "
+//                  << Position.z << ")" << std::endl;
+//        std::cout << "front: (" << Front.x << ", "
+//                  << Front.y << ", "
+//                  << Front.z << ")" << std::endl;
     }
 };
 
