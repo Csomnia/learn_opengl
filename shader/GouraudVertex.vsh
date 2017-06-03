@@ -37,6 +37,6 @@ void main()
     vec3 specular = specularStrength * pow(max(dot(viewDir, refectDir), 0), 32) * lightColor;
 
     gl_Position = projection * view * model * vec4(position, 1.0f);
-    vertexCalulatedLightColor = (ambient +  specular + diffuse) * lightColor;
+    vertexCalulatedLightColor = ambient +  specular + diffuse;
 }
 
