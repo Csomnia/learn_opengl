@@ -62,7 +62,10 @@ float vertices[] = {
 
 bool wireframe_mode;
 float lastFrame = 0.0f;
+
+float lightRadius = 1.5f;
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+
 
 Camera my_camera(glm::vec3(0.0f, 0.0f, -3.0f));
 
@@ -145,12 +148,7 @@ int main()
     cubeShader.use();
     cubeShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
     cubeShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
-    cubeShader.setVec3("lightPos", lightPos.x, lightPos.y, lightPos.z);
 
-    // set light source position.
-    glm::mat4 lightModel;
-    lightModel = glm::translate(lightModel, lightPos);
-    lightModel = glm::scale(lightModel, glm::vec3(0.2f));
 
     while(!glfwWindowShouldClose(window))
     {
@@ -159,20 +157,23 @@ int main()
 
         processInput(window);
 
-        glm::mat4 projection, view, model;
+        glm::mat4 projection, view;
         projection = glm::perspective(glm::radians(my_camera.Zoom),
                                       (float)window_width / window_height,
                                       0.1f, 100.0f);
         view = my_camera.GetViewMatrix();
 
-        cubeShader.use();
-        cubeShader.setMat4("model", model);
-        cubeShader.setMat4("view", view);
-        cubeShader.setMat4("projection", projection);
-        cubeShader.setVec3("viewPos", my_camera.Position);
 
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        // ===================
+        // render light cuble.
+        // ===================
+        lightPos.x = sin(glfwGetTime()) * lightRadius;
+        lightPos.z = cos(glfwGetTime()) * lightRadius;
+
+        // set light source position.
+        glm::mat4 lightModel;
+        lightModel = glm::translate(lightModel, lightPos);
+        lightModel = glm::scale(lightModel, glm::vec3(0.2f));
 
         lightShader.use();
         lightShader.setMat4("model", lightModel);
@@ -181,6 +182,22 @@ int main()
 
         glBindVertexArray(lightVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        // ===================
+        // render color cube.
+        // ===================
+        glm::mat4 cubeModel;
+
+        cubeShader.use();
+        cubeShader.setMat4("model", cubeModel);
+        cubeShader.setMat4("view", view);
+        cubeShader.setMat4("projection", projection);
+        cubeShader.setVec3("viewPos", my_camera.Position);
+        cubeShader.setVec3("lightPos", lightPos);
+
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
 
         glfwPollEvents();
         glfwSwapBuffers(window);
