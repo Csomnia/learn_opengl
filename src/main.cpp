@@ -106,11 +106,14 @@ int main()
     // set mouse mode.
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
+    // Gouraud Lighting.
+    Shader cubeShader("../shader/GouraudVertex.vsh", "../shader/GouraudFragment.fsh");
+
     // lighting in world space
     // Shader cubeShader("../shader/vertex.vsh", "../shader/fragment.fsh");
 
     // lighting in view space.
-    Shader cubeShader("../shader/viewSpaceVertex.vsh", "../shader/viewSpaceFragment.fsh");
+    // Shader cubeShader("../shader/viewSpaceVertex.vsh", "../shader/viewSpaceFragment.fsh");
 
     Shader lightShader("../shader/vertex.vsh", "../shader/lightFragment.fsh");
 
@@ -198,11 +201,12 @@ int main()
         cubeShader.setMat4("projection", projection);
 
         // lighting in world space.
-        // glm::vec4 lightWorldPos = lightModel * glm::vec4(lightPos, 1.0f);
-        // cubeShader.setVec3("viewPos", my_camera.Position);
+         glm::vec4 lightWorldPos = lightModel * glm::vec4(lightPos, 1.0f);
+         cubeShader.setVec3("viewPos", my_camera.Position);
 
         // lighting in view space. viewPos in viewspce will be vec3(0 0 0).
-        glm::vec4 lightWorldPos = view * lightModel * glm::vec4(lightPos, 1.0f);
+        // glm::vec4 lightWorldPos = view * lightModel * glm::vec4(lightPos, 1.0f);
+
         cubeShader.setVec3("lightPos", glm::vec3(lightWorldPos));
 
         glBindVertexArray(VAO);
