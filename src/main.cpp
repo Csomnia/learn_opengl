@@ -107,10 +107,10 @@ int main()
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // Gouraud Lighting.
-    Shader cubeShader("../shader/GouraudVertex.vsh", "../shader/GouraudFragment.fsh");
+    // Shader cubeShader("../shader/GouraudVertex.vsh", "../shader/GouraudFragment.fsh");
 
     // lighting in world space
-    // Shader cubeShader("../shader/vertex.vsh", "../shader/fragment.fsh");
+    Shader cubeShader("../shader/vertex.vsh", "../shader/fragment.fsh");
 
     // lighting in view space.
     // Shader cubeShader("../shader/viewSpaceVertex.vsh", "../shader/viewSpaceFragment.fsh");
@@ -153,13 +153,13 @@ int main()
 
     // config cube shader color.
     cubeShader.use();
-    cubeShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
-    cubeShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+//    cubeShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+//    cubeShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
 
 
     while(!glfwWindowShouldClose(window))
     {
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         processInput(window);
@@ -174,8 +174,8 @@ int main()
         // ===================
         // render light cuble.
         // ===================
-        lightPos.x = sin(glfwGetTime()) * lightRadius;
-        lightPos.z = cos(glfwGetTime()) * lightRadius;
+//        lightPos.x = sin(glfwGetTime()) * lightRadius;
+//        lightPos.z = cos(glfwGetTime()) * lightRadius;
 
         // set light source position.
         glm::mat4 lightModel;
@@ -201,13 +201,19 @@ int main()
         cubeShader.setMat4("projection", projection);
 
         // lighting in world space.
-         glm::vec4 lightWorldPos = lightModel * glm::vec4(lightPos, 1.0f);
-         cubeShader.setVec3("viewPos", my_camera.Position);
+        glm::vec4 lightWorldPos = lightModel * glm::vec4(lightPos, 1.0f);
+        cubeShader.setVec3("viewPos", my_camera.Position);
 
-        // lighting in view space. viewPos in viewspce will be vec3(0 0 0).
-        // glm::vec4 lightWorldPos = view * lightModel * glm::vec4(lightPos, 1.0f);
+        cubeShader.setVec3("material.ambient", 1.0f, 0.5f, 0.31f);
+        cubeShader.setVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
+        cubeShader.setVec3("material.specular", 	0.5f, 0.5f, 0.5f);
+        cubeShader.setFloat("material.shininess", 32.0f);
 
-        cubeShader.setVec3("lightPos", glm::vec3(lightWorldPos));
+
+        cubeShader.setVec3("light.position", glm::vec3(lightWorldPos));
+        cubeShader.setVec3("light.ambient", .2f, .2f, .2f);
+        cubeShader.setVec3("light.diffuse", .5f, .5f, .5f);
+        cubeShader.setVec3("light.specular", 1.f, 1.f, 1.f);
 
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
