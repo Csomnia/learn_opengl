@@ -2,6 +2,7 @@
 struct Material {
     sampler2D diffuse;
     sampler2D specular;
+    sampler2D emission;
     float shininess;
 };
 
@@ -48,7 +49,7 @@ void main()
     vec3 specular = light.specular * spec * vec3(texture2D(material.specular, TexCoords));
 
     // final lighting.
-    vec3 result = ambient + diffuse + specular;
+    vec3 result = ambient + diffuse + specular + vec3(texture2D(material.emission, TexCoords));
     color = vec4(result, 1.0f);
     //color = texture2D(material.diffuse, TexCoords);
 }

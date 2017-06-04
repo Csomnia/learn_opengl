@@ -125,6 +125,8 @@ int main()
     // =====================
     GLuint boxTexture = loadTexture("../resources/container2.png");
     GLuint boxBoarderTexture = loadTexture("../resources/container2_specular.png");
+    GLuint emissionTexture = loadTexture("../resources/matrix.jpg");
+//    GLuint boxBoarderTexture = loadTexture("../resources/lighting_maps_specular_color.png");
 
     // ======================
     // bind cube VAO
@@ -171,6 +173,7 @@ int main()
     cubeShader.use();
     cubeShader.setInt("material.diffuse", 0);
     cubeShader.setInt("material.specular", 1);
+    cubeShader.setInt("material.emission", 2);
     //    cubeShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
     //    cubeShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
 
@@ -233,6 +236,8 @@ int main()
         glBindTexture(GL_TEXTURE_2D, boxTexture);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, boxBoarderTexture);
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, emissionTexture);
 
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
