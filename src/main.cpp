@@ -63,6 +63,19 @@ float vertices[] = {
     -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
 };
 
+glm::vec3 cubePositions[] = {
+  glm::vec3( 0.0f,  0.0f,  0.0f),
+  glm::vec3( 2.0f,  5.0f, -15.0f),
+  glm::vec3(-1.5f, -2.2f, -2.5f),
+  glm::vec3(-3.8f, -2.0f, -12.3f),
+  glm::vec3( 2.4f, -0.4f, -3.5f),
+  glm::vec3(-1.7f,  3.0f, -7.5f),
+  glm::vec3( 1.3f, -2.0f, -2.5f),
+  glm::vec3( 1.5f,  2.0f, -2.5f),
+  glm::vec3( 1.5f,  0.2f, -1.5f),
+  glm::vec3(-1.3f,  1.0f, -1.5f)
+};
+
 bool wireframe_mode;
 float lastFrame = 0.0f;
 
@@ -125,7 +138,6 @@ int main()
     // =====================
     GLuint boxTexture = loadTexture("../resources/container2.png");
     GLuint boxBoarderTexture = loadTexture("../resources/container2_specular.png");
-    GLuint emissionTexture = loadTexture("../resources/matrix.jpg");
 //    GLuint boxBoarderTexture = loadTexture("../resources/lighting_maps_specular_color.png");
 
     // ======================
@@ -173,7 +185,6 @@ int main()
     cubeShader.use();
     cubeShader.setInt("material.diffuse", 0);
     cubeShader.setInt("material.specular", 1);
-    cubeShader.setInt("material.emission", 2);
     //    cubeShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
     //    cubeShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
 
@@ -214,12 +225,8 @@ int main()
         // ===================
         // render color cube.
         // ===================
-        glm::mat4 cubeModel;
 
         cubeShader.use();
-        cubeShader.setMat4("model", cubeModel);
-        cubeShader.setMat4("view", view);
-        cubeShader.setMat4("projection", projection);
 
         // lighting in world space.
         glm::vec4 lightWorldPos = lightModel * glm::vec4(lightPos, 1.0f);
@@ -227,7 +234,8 @@ int main()
 
         cubeShader.setFloat("material.shininess", 32.0f);
 
-        cubeShader.setVec3("light.position", glm::vec3(lightWorldPos));
+//        cubeShader.setVec3("light.position", glm::vec3(lightWorldPos));
+        cubeShader.setVec3("light.direction",  -0.2f, -1.0f, -0.3f);
         cubeShader.setVec3("light.ambient", .2f, .2f, .2f);
         cubeShader.setVec3("light.diffuse", .5f, .5f, .5f);
         cubeShader.setVec3("light.specular", 1.f, 1.f, 1.f);
@@ -236,12 +244,20 @@ int main()
         glBindTexture(GL_TEXTURE_2D, boxTexture);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, boxBoarderTexture);
-        glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, emissionTexture);
 
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        for(int i = 0; i < 10; i++) {
+            glm::mat4 cubeModel;
+            float rotateAngle = i * 20.0f;
 
+            cubeModel = glm::translate(cubeModel, cubePositions[i]);
+            cubeModel = glm::rotate(cubeModel, rotateAngle,  glm::vec3(1.0f, 0.3f, 0.5f));
+            cubeShader.setMat4("model", cubeModel);
+            cubeShader.setMat4("view", view);
+            cubeShader.setMat4("projection", projection);
+
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
 
         glfwPollEvents();
         glfwSwapBuffers(window);
@@ -295,6 +311,16 @@ void processInput(GLFWwindow *window)
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
     {
         my_camera.ProcessKeyBoard(RIGHT, deltaTime);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+    {
+        my_camera.ProcessKeyBoard(UP, deltaTime);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+    {
+        my_camera.ProcessKeyBoard(DOWN, deltaTime);
     }
 }
 
