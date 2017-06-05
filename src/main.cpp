@@ -76,11 +76,17 @@ glm::vec3 cubePositions[] = {
   glm::vec3(-1.3f,  1.0f, -1.5f)
 };
 
+glm::vec3 pointLightPositions[] = {
+    glm::vec3( 0.7f,  0.2f,  2.0f),
+    glm::vec3( 2.3f, -3.3f, -4.0f),
+    glm::vec3(-4.0f,  2.0f, -12.0f),
+    glm::vec3( 0.0f,  0.0f, -3.0f)
+};
+
 bool wireframe_mode;
 float lastFrame = 0.0f;
 
 float lightRadius = 1.5f;
-glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
 
 Camera my_camera(glm::vec3(0.0f, 0.0f, -3.0f));
@@ -210,17 +216,22 @@ int main()
         //        lightPos.z = cos(glfwGetTime()) * lightRadius;
 
         // set light source position.
-        glm::mat4 lightModel;
-        lightModel = glm::translate(lightModel, lightPos);
-        lightModel = glm::scale(lightModel, glm::vec3(0.2f));
 
         lightShader.use();
-        lightShader.setMat4("model", lightModel);
         lightShader.setMat4("view", view);
         lightShader.setMat4("projection", projection);
 
         glBindVertexArray(lightVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        for(glm::vec3 &posi: pointLightPositions)
+        {
+                glm::mat4 lightModel;
+            lightModel = glm::translate(lightModel, posi);
+                lightModel = glm::scale(lightModel, glm::vec3(0.2f));
+                lightShader.setMat4("model", lightModel);
+
+                glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
+
 
         // ===================
         // render color cube.
@@ -228,23 +239,39 @@ int main()
 
         cubeShader.use();
 
-        // lighting in world space.
-        glm::vec4 lightWorldPos = lightModel * glm::vec4(lightPos, 1.0f);
         cubeShader.setVec3("viewPos", my_camera.Position);
 
-        cubeShader.setFloat("material.shininess", 32.0f);
+        cubeShader.setFloat("material.shininess", 128.0f);
 
-//        cubeShader.setVec3("light.position", glm::vec3(lightWorldPos));
-        cubeShader.setVec3("light.position", my_camera.Position);
-        cubeShader.setVec3("light.direction",  my_camera.Front);
-        cubeShader.setFloat("light.cutoff", glm::cos(glm::radians(12.5f)));
-        cubeShader.setFloat("light.outerCutoff", glm::cos(glm::radians(15.5f)));
-        cubeShader.setVec3("light.ambient", .2f, .2f, .2f);
-        cubeShader.setVec3("light.diffuse", .5f, .5f, .5f);
-        cubeShader.setVec3("light.specular", 1.f, 1.f, 1.f);
-        cubeShader.setFloat("light.constant", 1.0f);
-        cubeShader.setFloat("light.linear", 0.09f);
-        cubeShader.setFloat("light.quadratic", 0.032f);
+        // set pointLights;
+        int cnt = 0;
+        for(glm::vec3 &posi: pointLightPositions)
+        {
+           std::string locString = "pointLights[" + std::to_string(cnt++) + "]";
+
+           cubeShader.setVec3(locString+".position", posi);
+           cubeShader.setVec3(locString+".ambient", 0.2f, 0.2f, 0.2f);
+           cubeShader.setVec3(locString+".diffuse", 0.8f, 0.8f, 0.8f);
+           cubeShader.setVec3(locString+".specular", 1.0f, 1.0f, 1.0f);
+           cubeShader.setFloat(locString+".constant", 1.0f);
+           cubeShader.setFloat(locString+".linear", 0.09f);
+           cubeShader.setFloat(locString+".quadratic", 0.32f);
+        }
+
+        // set directionLight;
+        cubeShader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
+        cubeShader.setVec3("dirLight.ambient", 0.2f, 0.2f, 0.2f);
+        cubeShader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
+        cubeShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
+
+        // set spotLight
+        cubeShader.setVec3("spotLight.direction", my_camera.Front);
+        cubeShader.setVec3("spotLight.position", my_camera.Position);
+        cubeShader.setVec3("spotLight.ambient", 0.2f, 0.2f, 0.2f);
+        cubeShader.setVec3("spotLight.diffuse", 0.4f, 0.4f, 0.4f);
+        cubeShader.setVec3("spotLight.specular", 0.5f, 0.5f, 0.5f);
+        cubeShader.setFloat("spotLight.innerCutoff", glm::cos(glm::radians(12.5)));
+        cubeShader.setFloat("spotLight.outerCutoff", glm::cos(glm::radians(15.5)));
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, boxTexture);
@@ -254,7 +281,7 @@ int main()
         glBindVertexArray(VAO);
         for(int i = 0; i < 10; i++) {
             glm::mat4 cubeModel;
-            float rotateAngle = i * 20.0f;
+            float rotateAngle = i * glfwGetTime() * 0.1;
 
             cubeModel = glm::translate(cubeModel, cubePositions[i]);
             cubeModel = glm::rotate(cubeModel, rotateAngle,  glm::vec3(1.0f, 0.3f, 0.5f));
